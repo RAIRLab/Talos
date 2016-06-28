@@ -161,19 +161,23 @@ class spassContainer():
             if simultaneous and r in self.simultaneousRules:
                 for t in self.simultaneousRules[r][1]:
                     self.symbolReverter[t]=necessaryFuncDefs[t]
-                    container.namespace.addCodeFunction(necessaryFuncDefs[t][0],necessaryFuncDefs[t][2],necessaryFuncDefs[t][3])
+                    container.namespace.add_code_function(necessaryFuncDefs[t][0], necessaryFuncDefs[t][2],
+                                                          necessaryFuncDefs[t][3])
             if not simultaneous and r in self.temporalRules:
                 for t in self.temporalRules[r][1]:
                     self.symbolReverter[t]=necessaryFuncDefs[t]
-                    container.namespace.addCodeFunction(necessaryFuncDefs[t][0],necessaryFuncDefs[t][2],necessaryFuncDefs[t][3])
+                    container.namespace.add_code_function(necessaryFuncDefs[t][0], necessaryFuncDefs[t][2],
+                                                          necessaryFuncDefs[t][3])
             if r in self.basicLogicRules:
                 for t in self.basicLogicRules[r][1]:
                     self.symbolReverter[t]=necessaryFuncDefs[t]
-                    container.namespace.addCodeFunction(necessaryFuncDefs[t][0],necessaryFuncDefs[t][2],necessaryFuncDefs[t][3])
+                    container.namespace.add_code_function(necessaryFuncDefs[t][0], necessaryFuncDefs[t][2],
+                                                          necessaryFuncDefs[t][3])
             if r in self.commonlyKnownLogicRules:
                 for t in self.commonlyKnownLogicRules[r][1]:
                     self.symbolReverter[t]=necessaryFuncDefs[t]
-                    container.namespace.addCodeFunction(necessaryFuncDefs[t][0],necessaryFuncDefs[t][2],necessaryFuncDefs[t][3])
+                    container.namespace.add_code_function(necessaryFuncDefs[t][0], necessaryFuncDefs[t][2],
+                                                          necessaryFuncDefs[t][3])
 
     def addSorts(self,container):
         self.input+="].\npredicates[\n(isValid,1)\n].\nsorts["
@@ -381,7 +385,7 @@ class spassContainer():
     def resultToString(self):
         output = self.result[0] + "\n"
         for statement in self.result[1]:
-            output += "\t" + statement[0].printStatement(statement[1]) + "\n"
+            output += "\t" + statement[0].print_statement(statement[1]) + "\n"
         for rule in self.result[2]:
             output += "\t\t" + rule + "\n"
         return output
@@ -389,7 +393,7 @@ class spassContainer():
     def discoveriesToString(self):
         output = ""
         for discovery in self.discoveries.statements:
-            output += self.discoveries.printStatement(discovery)+"\n"
+            output += self.discoveries.print_statement(discovery) + "\n"
         return output
 
     def getOutput(self):

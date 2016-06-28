@@ -58,7 +58,7 @@ def findSubTokens(statement, transformDict, sorts, quants, quantMap):
         if temp[index] == "(":
             level += 1
             if (level == 1):
-                sublevel.append([index, cleaning.getMatchingCloseParen(temp, index) + 1])
+                sublevel.append([index, cleaning.get_matching_close_paren(temp, index) + 1])
             continue
         if temp[index] == ')':
             level -= 1
@@ -160,7 +160,7 @@ def tokenizeSPASS(partialStatement, sorts, transformDict, quantMap):
             funcs.append(["TEMP"])
             continue
         # Find the functions derived in the proof
-        temp = cleaning.tuckFunctions(statement)
+        temp = cleaning.tuck_functions(statement)
         tokens = findSubTokens(temp, transformDict, sorts, quants, quantMap)
         # Funcs have isValid in front
         if tokens[0] == "isValid":
@@ -320,10 +320,10 @@ if __name__ == "__main__":
     transformDict["a0"] = ["a"]
     transformDict["James0"] = ["james"]
     outputContainer = DCECContainer()
-    outputContainer.namespace.addCodeSort("Boolean")
-    outputContainer.namespace.addCodeSort("Agent")
-    outputContainer.namespace.addCodeSort("Action")
-    outputContainer.namespace.addCodeSort("ActionType")
+    outputContainer.namespace.add_code_sort("Boolean")
+    outputContainer.namespace.add_code_sort("Agent")
+    outputContainer.namespace.add_code_sort("Action")
+    outputContainer.namespace.add_code_sort("ActionType")
     quant = "a0"
     for x in range(0, 1000):
         print(quant)
