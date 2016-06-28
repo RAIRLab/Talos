@@ -1,6 +1,5 @@
-import sys, os
-import copy
 from outputParser import toSNotation
+
 
 class proofTree():
     simultaneous=dict([
@@ -41,83 +40,84 @@ class proofTree():
         ("|| Moment(U) isValid(Lessorequal2MomentMoment(U,V))* isValid(C2MomentBoolean(U,W))* isValid(Lessorequal2MomentMoment(V,X)) Moment(V) Moment(X) isValid(Lessorequal2MomentMoment(X,Y)) Moment(Y) Boolean(W) Agent(Z) Agent(X1) Agent(X2) -> isValid(K3AgentMomentBoolean(Z,V,K3AgentMomentBoolean(X1,X,K3AgentMomentBoolean(X2,Y,W))))*.","DCEC_RULE_3"),
         ("|| Agent(U) isValid(B3AgentMomentBoolean(U,V,W)) isValid(B3AgentMomentBoolean(U,V,O4AgentMomentBooleanBoolean(Self1Agent(U),V,W,Happens2EventMoment(Action2AgentActionType(Self1Agent(U),X),Y))))* isValid(O4AgentMomentBooleanBoolean(U,V,W,Happens2EventMoment(Action2AgentActionType(Self1Agent(U),X),Y))) isValid(Lessorequal2MomentMoment(V,Y)) Moment(V) Boolean(W) ActionType(X) Moment(Y) -> isValid(K3AgentMomentBoolean(U,V,I3AgentMomentBoolean(Self1Agent(U),V,Happens2EventMoment(Action2AgentActionType(Self1Agent(U),X),Y)))).","DCEC_RULE_14")
     ])
-    def __init__(self,inputProof,container,isSimultaneous, symbolReverter):
-        #inputProof is the raw spass proof output
-        #container is an empty DCECContainer with the necessary namespace
-        inputProof=inputProof.split("\n")
-        #split the proof
+
+    def __init__(self,inputProof, container, isSimultaneous, symbolReverter):
+        # inputProof is the raw spass proof output
+        # container is an empty DCECContainer with the necessary namespace
+        inputProof = inputProof.split("\n")
+        # split the proof
         for x in range(0,len(inputProof)):
-            idStart=inputProof[x].find("[")
-            idEnd=inputProof[x].find("] ")+2
-            #find the start and end of the premise ids
+            idStart = inputProof[x].find("[")
+            idEnd = inputProof[x].find("] ")+2
+            # find the start and end of the premise ids
             if inputProof[x].rfind(":",0,idEnd) == inputProof[x].find(":",0,idEnd):
-                premiseStart=idEnd-2
-                #if there were no premises be prepared to have none
+                premiseStart = idEnd-2
+                # if there were no premises be prepared to have none
             else:
                 premiseStart=inputProof[x].rfind(":",0,idEnd)+1
-                #otherwise be prepared to cut off the rule
+                # otherwise be prepared to cut off the rule
             inputProof[x]=[inputProof[x][:idStart],filter(None, inputProof[x][premiseStart:idEnd-2].split(",")),inputProof[x][idEnd:]]
-            #set up a tuple with the first index the string for the line number
-            #with the second index being the list of line numbers for premises
-            #with the third index being the actual line
+            # set up a tuple with the first index the string for the line number
+            # with the second index being the list of line numbers for premises
+            # with the third index being the actual line
         
         for line in inputProof:
-            if line[2][-4:]=='-> .':
-                line[2]="(leads_to_conclusion "+toSNotation(line[2],container.namespace.sorts, symbolReverter)+")"
+            if line[2][-4:] == '-> .':
+                line[2] = "(leads_to_conclusion "+toSNotation(line[2],container.namespace.sorts, symbolReverter)+")"
             else:
-                line[2]=toSNotation(line[2],container.namespace.sorts,symbolReverter)
+                line[2] = toSNotation(line[2],container.namespace.sorts,symbolReverter)
             if isSimultaneous:
                 if line[2] in self.simultaneous:
-                    line[2]=self.simultaneous[line[2]]
+                    line[2] = self.simultaneous[line[2]]
             else:
                 if line[2] in self.nonSimultaneous:
-                    line[2]=self.nonSimultaneous[line[2]]
-        x=len(inputProof)-1
-        while x>=0:
-            if inputProof[x][1]==[] and inputProof[x][2]=='':
+                    line[2] = self.nonSimultaneous[line[2]]
+        x = len(inputProof)-1
+        while x >= 0:
+            if inputProof[x][1] == [] and inputProof[x][2] == '':
                 inputProof.pop(x)
             else:
-                for y in range(0,len(inputProof[x][1])):
-                    inputProof[x][1][y]=inputProof[x][1][y].split(".")[0]
-            x-=1
-        idLookup=dict()
+                for y in range(0, len(inputProof[x][1])):
+                    inputProof[x][1][y] = inputProof[x][1][y].split(".")[0]
+            x -= 1
+        idLookup = dict()
         for line in inputProof:
-            idLookup[line[0]]=line[2]
+            idLookup[line[0]] = line[2]
         for line in inputProof:
-            x=len(line[1])-1
-            while x>=0:
+            x = len(line[1])-1
+            while x >= 0:
                 if not (line[1][x] in idLookup.keys()):
                     line[1].pop(x)
-                x-=1
-        usedLines=set()
-        x=len(inputProof)-1
-        while x>=0:
-            y=len(inputProof[x][1])-1
-            while y>=0:
-                if idLookup[inputProof[x][1][y]]==inputProof[x][2]:
+                x -= 1
+        usedLines = set()
+        x = len(inputProof)-1
+        while x >= 0:
+            y = len(inputProof[x][1])-1
+            while y >= 0:
+                if idLookup[inputProof[x][1][y]] == inputProof[x][2]:
                     for z in inputProof:
-                        if z[0]==inputProof[x][1][y]:
-                            inputProof[x][1]+=z[1]
+                        if z[0] == inputProof[x][1][y]:
+                            inputProof[x][1] += z[1]
                             break
                     inputProof[x][1].pop(y)
-                    y=len(inputProof[x][1])
+                    y = len(inputProof[x][1])
                 else:
                     usedLines.add(inputProof[x][1][y])
-                y-=1
-            x-=1
+                y -= 1
+            x -= 1
             inputProof[x][1]=list(set(inputProof[x][1]))
         usedLines.add(inputProof[-1][0])
-        x=len(inputProof)-1
-        while x>=0:
+        x = len(inputProof)-1
+        while x >= 0:
             if not inputProof[x][0] in usedLines:
                 inputProof.pop(x)
-            x-=1
-        self.proofDict=dict()
+            x -= 1
+        self.proofDict = dict()
         for line in inputProof:
-            premises=[]
+            premises = []
             for p in line[1]:
                 premises.append(idLookup[p])
-            self.proofDict[line[2]]=premises
+            self.proofDict[line[2]] = premises
         """
         self.proofTree=self.stratify("(leads_to_conclusion )")
     #return a tuple, first index the leads to conclusion, second index is a list of reasons that are recursive

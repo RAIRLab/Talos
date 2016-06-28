@@ -1,7 +1,10 @@
-import subprocess
-from sets import Set
+from __future__ import print_function
+from six import string_types
+
+import os
 import platform
-import sys, os
+import subprocess
+import sys
 from proofTree import proofTree
 from outputParser import toSNotation
 sys.path.append(os.path.join(os.path.dirname(__file__), '../', 'DCEC_Library'))
@@ -87,8 +90,8 @@ class spassContainer():
         ("DEFINITION_OF_IFF1",("formula(forall([Boolean(z),Boolean(y)],implies(isValid(And2BooleanBoolean(And2BooleanBoolean(Implies2BooleanBoolean(z,y),Implies2BooleanBoolean(y,z)),And2BooleanBoolean(Implies2BooleanBoolean(Not1Boolean(z),Not1Boolean(y)),Implies2BooleanBoolean(Not1Boolean(y),Not1Boolean(z))))),isValid(Iff2BooleanBoolean(z,y)))),DEFINITION_OF_IFF).",["And2BooleanBoolean","Not1Boolean","Implies2BooleanBoolean","Iff2BooleanBoolean"])),
     ])
     commonlyKnownLogicRules=dict([
-        ("CMODUS_PONENS",("formula(forall([Moment(z),Boolean(y),Boolean(x)],isValid(C2MomentBoolean(z,Implies2BooleanBoolean(And2BooleanBoolean(y,Implies2BooleanBoolean(y,x)),x)))),CMODUS_PONENS).",["Implies2BooleanBoolean","C2MomentBoolean"])), ("CCONJUNCTION_INTRODUCTION",("formula(forall([Moment(z),Boolean(y),Boolean(x)],isValid(C2MomentBoolean(z,Implies2BooleanBoolean(and(y,x),And2BooleanBoolean(y,x)))),CCONJUNCTION_INTRODUCTION).",["And2BooleanBoolean","C2MomentBoolean"])),
-        ("CCONJUNCTION_INTRODUCTION",("formula(forall([Moment(z),Boolean(y),Boolean(x)],isValid(C2MomentBoolean(z,Implies2BooleanBoolean(And2BooleanBoolean(y,x),And2BooleanBoolean(y,x))))),CCONJUNCTION_INTRODUCTION).",["And2BooleanBoolean","C2MomentBoolean"])),
+        ("CMODUS_PONENS",("formula(forall([Moment(z),Boolean(y),Boolean(x)],isValid(C2MomentBoolean(z,Implies2BooleanBoolean(And2BooleanBoolean(y,Implies2BooleanBoolean(y,x)),x)))),CMODUS_PONENS).",["Implies2BooleanBoolean","C2MomentBoolean"])),
+        ("CCONJUNCTION_INTRODUCTION",("formula(forall([Moment(z),Boolean(y),Boolean(x)],isValid(C2MomentBoolean(z,Implies2BooleanBoolean(and(y,x),And2BooleanBoolean(y,x)))),CCONJUNCTION_INTRODUCTION).",["And2BooleanBoolean","C2MomentBoolean"])),
         ("CSIMPLIFICATION",("formula(forall([Moment(z),Boolean(y),Boolean(x)],isValid(C2MomentBoolean(z,Implies2BooleanBoolean(And2BooleanBoolean(y,x),y)))),CSIMPLIFICATION).",["And2BooleanBoolean","C2MomentBoolean"])),
         ("CSIMPLIFICATION1",("formula(forall([Moment(z),Boolean(y),Boolean(x)],isValid(C2MomentBoolean(z,Implies2BooleanBoolean(And2BooleanBoolean(y,x),x)))),CSIMPLIFICATION).",["And2BooleanBoolean","C2MomentBoolean"])),
         ("CWEAKENING",("formula(forall([Moment(z),Boolean(y),Boolean(x)],isValid(C2MomentBoolean(z,Implies2BooleanBoolean(And2BooleanBoolean(y,x),Or2BooleanBoolean(y,x))))),CWEAKENING).",["And2BooleanBoolean","Or2BooleanBoolean",])),
@@ -125,7 +128,7 @@ class spassContainer():
     #options is a string of SPASS options for the prover
     #simultaneous indicates whether a modified series of DCEC Inference rules that take place only in one time are used
     #discover indicates whether new statements that are discovered should be printed
-    def __init__(self, axiomContainer, query, justify=False, timeout=-1, options="-Auto", simultaneous=False, discover=False, rules=["DCEC_RULE_1","DCEC_RULE_2","DCEC_RULE_3","DCEC_RULE_4","DCEC_RULE_5","DCEC_RULE_6","DCEC_RULE_7","DCEC_RULE_9","DCEC_RULE_10","DCEC_RULE_11A","DCEC_RULE_11B","DCEC_RULE_12","DCEC_RULE_13","DCEC_RULE_14","DCEC_RULE_15","CCOMMUTATIVITY_OF_AND","CCOMMUTATIVITY_OF_OR","CCOMMUTATIVITY_OF_XOR","CCONJUNCTION_INTRODUCTION","CCUT_ELIMINATION","CDEFINITION_OF_IFF","CDEFINITION_OF_XOR","CDEMORGAN","CDISJUNCTION ELIMINATION","CDISJUNCTIVE_SYLLOGISM","CDISTRIBUTION","CMODUS_PONENS","COMMUTATIVITY_OF_AND","COMMUTATIVITY_OF_OR","COMMUTATIVITY_OF_XOR","CONJUNCTION_INTRODUCTION","CSIMPLIFICATION","CUT_ELIMINATION","CWEAKENING","DEFINITION_OF_IFF","DEFINITION_OF_XOR","DEMORGAN","DISJUNCTION_ELIMINATION","DISJUNCTIVE_SYLLOGISM","DISTRIBUTION","MODUS_PONENS","SIMPLIFICATION","WEAKENING"]):
+    def __init__(self, axiomContainer, query, justify=False, timeout=-1, options="-Auto", simultaneous=False, discover=False, rules=set(temporalRules.keys() + basicLogicRules.keys())):
         self.sorts=axiomContainer.namespace.sorts
         self.addInferenceRules(simultaneous,rules,axiomContainer)
         parsedStatements = self.parseStatements(axiomContainer)
@@ -228,7 +231,7 @@ class spassContainer():
         if statement is None:
             return ""
         tmp=False
-        if isinstance(statement,str):
+        if isinstance(statement, string_types):
             newContainer = container.tokenize(statement)
             if newContainer == False:
                 raise ValueError("The query is invalid within that set of axioms.")
@@ -254,7 +257,7 @@ class spassContainer():
     def parseSubStatements(self, container, substmts, vars=[]):
         parsed = ""
         for substmt in substmts:
-            if not isinstance(substmt,str):
+            if not isinstance(substmt, string_types):
                 parsed += self.convertToTerm(substmt.funcName,container.sortOf(substmt),container.sortsOfParams(substmt)) + "("
                 parsed += self.parseSubStatements(container,substmt.args, vars) + "),"
             else:
@@ -268,8 +271,8 @@ class spassContainer():
         findProof=True
         if discover or justify:
             for statement in container.statements:
-                if not isinstance(statement,str) and statement.createSExpression().find("exists")!=-1:
-                    print "DUE TO A QUIRK OF SPASS OUTPUT PROOFS AND GENERATED STATEMENTS CANNOT BE DERIVED FROM STATEMENTS WITH exists"
+                if not isinstance(statement, string_types) and statement.createSExpression().find("exists")!=-1:
+                    print("DUE TO A QUIRK OF SPASS OUTPUT PROOFS AND GENERATED STATEMENTS CANNOT BE DERIVED FROM STATEMENTS WITH exists")
                     findProof=False
                     discover=False
                     break
@@ -351,7 +354,7 @@ class spassContainer():
                         steps.pop(x)
                     elif steps[x].startswith("declaration"):
                         steps.pop(x)
-                steps=Set(steps)
+                steps=frozenset(steps)
                 for step in steps:
                     if step in self.axioms:
                         self.result[1].append(self.axioms[step])
