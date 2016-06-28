@@ -1,5 +1,6 @@
 import subprocess
 from sets import Set
+import platform
 import sys, os
 from proofTree import proofTree
 from outputParser import toSNotation
@@ -276,7 +277,7 @@ class spassContainer():
         self.output = ""
         self.rulesresult = None
         self.rules = []
-        command = [self.directory + "/SPASS-3.7/SPASS/SPASS", "-TimeLimit=" + str(timelimit), "-Stdin"]
+        command = [self.directory + "/SPASS/SPASS-" + platform.system().lower(), "-TimeLimit=" + str(timelimit), "-Stdin"]
         command += options.split(" ")
         if justify:
             command.append("-DocProof")
