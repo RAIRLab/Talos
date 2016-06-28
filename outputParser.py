@@ -1,11 +1,8 @@
 from __future__ import print_function
 from six import string_types
 
-import sys, os
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '../', 'DCEC_Library'))
-import DCEC_Library.cleaning as cleaning
 import string
+import DCEC_Library.cleaning as cleaning
 from DCEC_Library.DCECContainer import DCECContainer
 
 
