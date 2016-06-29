@@ -77,11 +77,12 @@ def findSubTokens(statement, transformDict, sorts, quants, quantMap):
                 overwriteQuant(quants, args[1], args[0], quantMap)
     # If there is a funciton
     elif args[0] in transformDict.keys():
-        argSorts = transformDict[args[0]][3]
-        for sort in range(0, len(argSorts)):
-            if not args[sort + 1] == "" and not args[sort + 1] in quantMap.keys() and not args[
-                        sort + 1] in transformDict.keys():
-                storeQuant(quants, args[sort + 1], argSorts[sort], transformDict, quantMap)
+        if len(transformDict[args[0]]) > 3:
+            argSorts = transformDict[args[0]][3]
+            for sort in range(0, len(argSorts)):
+                if not args[sort + 1] == "" and not args[sort + 1] in quantMap.keys() and not args[
+                            sort + 1] in transformDict.keys():
+                    storeQuant(quants, args[sort + 1], argSorts[sort], transformDict, quantMap)
     place = 0
     # Recurse
     for index in range(0, len(args)):
