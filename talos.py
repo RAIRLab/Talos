@@ -130,8 +130,9 @@ class SpassContainer(object):
     # simultaneous indicates whether a modified series of DCEC Inference rules that take place only
     # in one time are used discover indicates whether new statements that are discovered should be
     # printed
-    def __init__(self, axiom_container, query, justify=False, timeout=-1, options="-Auto", simultaneous=False,
-                 discover=False, rules=set(temporalRules.keys() + basicLogicRules.keys())):
+    def __init__(self, axiom_container, query, justify=False, timeout=-1, options="-Auto",
+                 simultaneous=False, discover=False,
+                 rules=set(list(temporalRules.keys()) + list(basicLogicRules.keys()))):
         self.sorts = axiom_container.namespace.sorts
         self.add_inference_rules(simultaneous, rules, axiom_container)
         parsed_statements = self.parseStatements(axiom_container)

@@ -216,7 +216,7 @@ def sortQuants(quants, sorts, transformDict, newMap):
         newBase = nextQuant(newBase)
     for sort in sorts:
         if sort in quants:
-            for quant in range(0, len(quants) / 2):
+            for quant in range(0, int(len(quants) / 2)):
                 index = quant * 2
                 if quants[index] == sort:
                     orderedquants.append(quants[index])
@@ -235,7 +235,7 @@ def tokensToString(quants, sorts, constraints, results):
     if len(constraints) == 0 and len(results) == 0:
         return returnString
     # Translate to DCEC-quantifiers, sort the quantifiers
-    for quant in range(0, len(quants) / 2):
+    for quant in range(0, int(len(quants) / 2)):
         returnString += "(forAll ("
         numEndParens += 1
         returnString += quants[quant * 2] + " "
@@ -294,7 +294,7 @@ def toSNotation(SPASSstatement, sorts, transformDict):
     quants2, results = tokenizeSPASS(templist[1], sorts, transformDict, quantMap)
     quants = quants1
     # Add quantifiers in a setwise fashion
-    for quant in range(0, len(quants2) / 2):
+    for quant in range(0, int(len(quants2) / 2)):
         if not quants2[quant * 2 + 1] in quants:
             quants = quants + quants2[quant * 2:quant * 2 + 2]
     # Sort and remake the quantifiers
