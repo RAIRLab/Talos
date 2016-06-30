@@ -1,8 +1,8 @@
-from outputParser import toSNotation
+from output_parser import toSNotation
 
 
-class proofTree():
-    simultaneous=dict([
+class ProofTree(object):
+    simultaneous = dict([
         ("isValid(U) isValid(V) ||  -> isValid(And2BooleanBoolean(V,U))*.","CONJUNCTION_INTRODUCTION"),
         ("Boolean(U) isValid(V) || isValid(Implies2BooleanBoolean(V,U))* -> isValid(U).","MODUS_PONENS"),
         ("Boolean(U) Moment(V) Agent(W) || isValid(K3AgentMomentBoolean(W,V,U))* -> isValid(U).","DCEC_RULE_4"),
@@ -21,7 +21,8 @@ class proofTree():
         ("Boolean(U) Agent(V) Agent(W) Boolean(X) Boolean(Y) || isValid(Iff2BooleanBoolean(Y,X)) -> isValid(Iff2BooleanBoolean(O4AgentMomentBooleanBoolean(W,V,Y,U),O4AgentMomentBooleanBoolean(W,V,X,U)))*.","DCEC_RULE_15"),
         ("ActionType(U) Boolean(V) Moment(W) Agent(X) || isValid(B3AgentMomentBoolean(X,W,V)) isValid(B3AgentMomentBoolean(X,W,O4AgentMomentBooleanBoolean(Self1Agent(X),W,V,Happens2EventMoment(Action2AgentActionType(Self1Agent(X),U),W))))* isValid(O4AgentMomentBooleanBoolean(X,W,V,Happens2EventMoment(Action2AgentActionType(Self1Agent(X),U),W))) -> isValid(K3AgentMomentBoolean(X,W,I3AgentMomentBoolean(Self1Agent(X),W,Happens2EventMoment(Action2AgentActionType(Self1Agent(X),U),W)))).","DCEC_RULE_14"),
     ])
-    nonSimultaneous=dict([
+
+    nonSimultaneous = dict([
         ("|| Boolean(U) isValid(U) isValid(Implies2BooleanBoolean(U,V))* Boolean(V) -> isValid(V).","MODUS_PONENS"),
         ("|| Boolean(U) isValid(U) isValid(V) Boolean(V) -> isValid(And2BooleanBoolean(U,V))*.","CONJUNCTION_INTRODUCTION"),
         ("|| Agent(U) isValid(K3AgentMomentBoolean(U,V,W))* Moment(V) Boolean(W) -> isValid(W).","DCEC_RULE_4"),

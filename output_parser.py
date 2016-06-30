@@ -3,7 +3,7 @@ from six import string_types
 
 import string
 import DCEC_Library.cleaning as cleaning
-from DCEC_Library.DCECContainer import DCECContainer
+from DCEC_Library.dcec_container import DCECContainer
 
 
 def nextQuant(prev):
@@ -311,6 +311,7 @@ def toSNotation(SPASSstatement, sorts, transformDict):
 def parseOutput(outputTree):
     outputContainer = DCECContainer()
     currentStatement = toSNotation(outputTree.conclusion)
+    return currentStatement
 
 
 if __name__ == "__main__":
