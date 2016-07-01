@@ -4,10 +4,23 @@ from six import string_types
 import os
 import platform
 import subprocess
-from proof_tree import ProofTree
-from output_parser import toSNotation
-from DCEC_Library.dcec_container import DCECContainer
+import sys
 
+# We need to use the first type of import if running this script directly and the second type of
+# import if we're using it in a package (such as within Talos-Flask)
+try:
+    from proof_tree import ProofTree
+    from output_parser import toSNotation
+except ImportError:
+    from Talos.proof_tree import ProofTree
+    from Talos.output_parser import toSNotation
+
+# As much as I'd like to not have this, we need it for now with our poor depedency handling
+# as otherwise within the DCEC_Library, for example in DCEC_Library.prototypes we have that
+# import prototypes (for when just within DCEC_Library) then import DCEC_Library.prototypes for
+# when we're using it as a module and then import Talos.DCEC_Library.prototypes when using Talos
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'DCEC_Library'))
+from dcec_container import DCECContainer
 
 class SpassContainer(object):
     directory = os.path.dirname(__file__)
@@ -297,8 +310,11 @@ class SpassContainer(object):
         command += options.split(" ")
         if justify:
             command.append("-DocProof")
-        self.spass = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.spass = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         self.output, self.errors = self.spass.communicate(self.input)
+        #self.output, self.errors = self.spass.communicate(self.input.encode())
+        #self.output = str(self.output)
+        #self.errors = str(self.errors)
         self.parseProof(justify, findProof, discover, container, simultaneous)
 
     def addFunctions(self):

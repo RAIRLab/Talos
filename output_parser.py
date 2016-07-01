@@ -1,9 +1,17 @@
 from __future__ import print_function
 from six import string_types
 
+import os
 import string
-import DCEC_Library.cleaning as cleaning
-from DCEC_Library.dcec_container import DCECContainer
+import sys
+
+# As much as I'd like to not have this, we need it for now with our poor depedency handling
+# as otherwise within the DCEC_Library, for example in DCEC_Library.prototypes we have that
+# import prototypes (for when just within DCEC_Library) then import DCEC_Library.prototypes for
+# when we're using it as a module and then import Talos.DCEC_Library.prototypes when using Talos
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'DCEC_Library'))
+import cleaning as cleaning
+from dcec_container import DCECContainer
 
 
 def nextQuant(prev):

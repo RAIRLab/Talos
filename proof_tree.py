@@ -1,4 +1,9 @@
-from output_parser import toSNotation
+# We need to use the first type of import if running this script directly and the second type of
+# import if we're using it in a package (such as within Talos-Flask)
+try:
+    from output_parser import toSNotation
+except ImportError:
+    from Talos.output_parser import toSNotation
 
 
 class ProofTree(object):
@@ -57,7 +62,7 @@ class ProofTree(object):
             else:
                 premiseStart=inputProof[x].rfind(":",0,idEnd)+1
                 # otherwise be prepared to cut off the rule
-            inputProof[x]=[inputProof[x][:idStart],filter(None, inputProof[x][premiseStart:idEnd-2].split(",")),inputProof[x][idEnd:]]
+            inputProof[x]=[inputProof[x][:idStart], list(filter(None, inputProof[x][premiseStart:idEnd-2].split(","))),inputProof[x][idEnd:]]
             # set up a tuple with the first index the string for the line number
             # with the second index being the list of line numbers for premises
             # with the third index being the actual line
