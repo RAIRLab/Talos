@@ -149,13 +149,13 @@ class SpassContainer(object):
         self.sorts = axiom_container.namespace.sorts
         self.add_inference_rules(simultaneous, rules, axiom_container)
         parsed_statements = self.parseStatements(axiom_container)
-        parsed_query = self.parseStatement(axiom_container, query, "CONJECTURE")
+        parsed_query = self.parse_statement(axiom_container, query, "CONJECTURE")
         self.conjecture = query
-        self.addFunctions()
-        self.addSorts(axiom_container)
-        self.addFormulas(simultaneous,rules,parsed_statements)
-        self.addQuery(parsed_query)
-        self.spassExecute(axiom_container, justify, timeout, options, discover, simultaneous)
+        self.add_functions()
+        self.add_sorts(axiom_container)
+        self.add_formulas(simultaneous, rules, parsed_statements)
+        self.add_query(parsed_query)
+        self.spass_execute(axiom_container, justify, timeout, options, discover, simultaneous)
 
     def add_inference_rules(self, simultaneous, rules, container):
         necessary_func_defs = dict([
@@ -180,26 +180,30 @@ class SpassContainer(object):
         for r in rules:
             if simultaneous and r in self.simultaneousRules:
                 for t in self.simultaneousRules[r][1]:
-                    self.symbolReverter[t]=necessary_func_defs[t]
-                    container.namespace.add_code_function(necessary_func_defs[t][0], necessary_func_defs[t][2],
+                    self.symbolReverter[t] = necessary_func_defs[t]
+                    container.namespace.add_code_function(necessary_func_defs[t][0],
+                                                          necessary_func_defs[t][2],
                                                           necessary_func_defs[t][3])
             if not simultaneous and r in self.temporalRules:
                 for t in self.temporalRules[r][1]:
-                    self.symbolReverter[t]=necessary_func_defs[t]
-                    container.namespace.add_code_function(necessary_func_defs[t][0], necessary_func_defs[t][2],
+                    self.symbolReverter[t] = necessary_func_defs[t]
+                    container.namespace.add_code_function(necessary_func_defs[t][0],
+                                                          necessary_func_defs[t][2],
                                                           necessary_func_defs[t][3])
             if r in self.basicLogicRules:
                 for t in self.basicLogicRules[r][1]:
-                    self.symbolReverter[t]=necessary_func_defs[t]
-                    container.namespace.add_code_function(necessary_func_defs[t][0], necessary_func_defs[t][2],
+                    self.symbolReverter[t] = necessary_func_defs[t]
+                    container.namespace.add_code_function(necessary_func_defs[t][0],
+                                                          necessary_func_defs[t][2],
                                                           necessary_func_defs[t][3])
             if r in self.commonlyKnownLogicRules:
                 for t in self.commonlyKnownLogicRules[r][1]:
-                    self.symbolReverter[t]=necessary_func_defs[t]
-                    container.namespace.add_code_function(necessary_func_defs[t][0], necessary_func_defs[t][2],
+                    self.symbolReverter[t] = necessary_func_defs[t]
+                    container.namespace.add_code_function(necessary_func_defs[t][0],
+                                                          necessary_func_defs[t][2],
                                                           necessary_func_defs[t][3])
 
-    def addSorts(self,container):
+    def add_sorts(self, container):
         self.input += "].\npredicates[\n(isValid,1)\n].\nsorts["
         for sort in container.namespace.sorts.keys():
             self.input += sort+","
@@ -224,9 +228,9 @@ class SpassContainer(object):
                 self.input = self.input[:-1]+"))"
             self.input += ").\n"
 
-    #This method takes in a string representing a variable or function and makes it a unique identifier
-    #(This way I don't have to muck about with differentiating between overloaded stuff)
-    #It can be converted backwards later
+    # This method takes in a string representing a variable or function and makes it a unique
+    # identifier (This way I don't have to muck about with differentiating between overloaded
+    # stuff) It can be converted backwards later
     def convertToTerm(self, inputStr, returnType, sorts):
         convertedStr = inputStr.title()+str(len(sorts))
         for sort in sorts:
@@ -234,20 +238,21 @@ class SpassContainer(object):
         self.symbolReverter.setdefault(convertedStr, (inputStr, len(sorts), returnType, sorts))
         return convertedStr
 
-    #This method takes in a DCECContainer and parses all the statements inside
-    #It returns a list of fully parsed statements
+    # This method takes in a DCECContainer and parses all the statements inside
+    # It returns a list of fully parsed statements
     def parseStatements(self, axiomContainer):
         parsedStatements=[]
         axiomNum=1
         for statement in axiomContainer.statements:
-            parsed = self.parseStatement(axiomContainer, statement, "AXIOM_" + str(axiomNum))
+            parsed = self.parse_statement(axiomContainer, statement, "AXIOM_" + str(axiomNum))
             self.axioms.setdefault("AXIOM_"+str(axiomNum), (axiomContainer, statement))
             parsedStatements.append(parsed)
             axiomNum += 1
         return parsedStatements
 
-    #This method takes in a DCECContainer, a statement, a name for this axiom, and any quantified variables
-    def parseStatement(self, container, statement, name, variables=None):
+    # This method takes in a DCECContainer, a statement, a name for this axiom, and any quantified
+    # variables
+    def parse_statement(self, container, statement, name, variables=None):
         if variables is None:
             variables = []
         if statement is None:
@@ -257,67 +262,73 @@ class SpassContainer(object):
             newContainer = container.tokenize(statement)
             if newContainer is False:
                 raise ValueError("The query is invalid within that set of axioms.")
-            if statement==newContainer.statements[0]:
-                return "isValid("+self.convertToTerm(statement, newContainer.sortOf(statement), [])+"),"+name
-            return self.parseStatement(newContainer, newContainer.statements[0], name, variables)
+            if statement == newContainer.statements[0]:
+                return "isValid("+self.convertToTerm(statement, newContainer.sort_of(statement), []) + ")," + name
+            return self.parse_statement(newContainer, newContainer.statements[0], name, variables)
         parsed = ""
         if statement.function_name == "forAll" or statement.function_name == "exists":
-            if container.sortOf(statement.args[0]) is None:
-                parsed += statement.function_name.lower() + "(["+statement.args[0] + "]," + self.parseStatement(
+            if container.sort_of(statement.args[0]) is None:
+                parsed += statement.function_name.lower() + "(["+statement.args[0] + "]," + self.parse_statement(
                     container, statement.args[1], "", variables + [statement.args[0]]) + ")"
             else:
-                parsed += statement.function_name.lower() + "(["+container.sortOf(statement.args[0])+"("+statement.args[0] + ")]," + self.parseStatement(
+                parsed += statement.function_name.lower() + "([" + container.sort_of(
+                    statement.args[0]) + "(" + statement.args[0] + ")]," + self.parse_statement(
                     container, statement.args[1], "", variables + [statement.args[0]]) + ")"
         elif len(statement.args) == 0:
-            parsed += "isValid(" + self.convertToTerm(statement.function_name,container.sortOf(statement), []) + ")"
+            parsed += "isValid(" + self.convertToTerm(statement.function_name,
+                                                      container.sort_of(statement), []) + ")"
         else:
-            parsed += "isValid(" + self.convertToTerm(statement.function_name, container.sortOf(statement), container.sortsOfParams(statement))+ "("
-            parsed += self.parseSubStatements(container, statement.args, variables) + ")"
+            parsed += "isValid(" + self.convertToTerm(statement.function_name,
+                                                      container.sort_of(statement),
+                                                      container.sorts_of_params(statement)) + "("
+            parsed += self.parse_sub_statements(container, statement.args, variables) + ")"
             parsed = ")".join(parsed.split(",)"))
         if name != "":
             parsed += ")," + name
         return parsed
 
-    def parseSubStatements(self, container, substmts, variables=None):
+    def parse_sub_statements(self, container, substmts, variables=None):
         if variables is None:
             variables = []
         parsed = ""
         for substmt in substmts:
             if not isinstance(substmt, string_types):
-                parsed += self.convertToTerm(substmt.function_name, container.sortOf(substmt),container.sortsOfParams(substmt)) + "("
-                parsed += self.parseSubStatements(container, substmt.args, variables) + "),"
+                parsed += self.convertToTerm(substmt.function_name, container.sort_of(substmt),
+                                             container.sorts_of_params(substmt)) + "("
+                parsed += self.parse_sub_statements(container, substmt.args, variables) + "),"
             else:
-                if not substmt in variables:
-                    parsed += self.convertToTerm(substmt, container.sortOf(substmt),[]) + ","
+                if substmt not in variables:
+                    parsed += self.convertToTerm(substmt, container.sort_of(substmt), []) + ","
                 else:
                     parsed += substmt + ","
         return parsed
 
-    def spassExecute(self, container, justify=False, timelimit=-1, options="-Auto", discover=False,simultaneous=False):
-        findProof = True
+    def spass_execute(self, container, justify=False, timelimit=-1, options="-Auto",
+                      discover=False, simultaneous=False):
+        find_proof = True
         if discover or justify:
             for statement in container.statements:
-                if not isinstance(statement, string_types) and statement.create_s_expression().find("exists")!=-1:
-                    print("DUE TO A QUIRK OF SPASS OUTPUT PROOFS AND GENERATED STATEMENTS CANNOT BE DERIVED FROM STATEMENTS WITH exists")
-                    findProof = False
+                if not isinstance(statement, string_types) and \
+                                statement.create_s_expression().find("exists") != -1:
+                    print("DUE TO A QUIRK OF SPASS OUTPUT PROOFS AND GENERATED STATEMENTS CANNOT "
+                          "BE DERIVED FROM STATEMENTS WITH exists")
+                    find_proof = False
                     discover = False
                     break
         self.errors = ""
         self.output = ""
-        self.rulesresult = None
+        self.rules_result = None
         self.rules = []
         command = [self.directory + "/SPASS/SPASS-" + platform.system().lower(), "-TimeLimit=" + str(timelimit), "-Stdin"]
         command += options.split(" ")
         if justify:
             command.append("-DocProof")
-        self.spass = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        self.spass = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE, universal_newlines=True)
         self.output, self.errors = self.spass.communicate(self.input)
-        #self.output, self.errors = self.spass.communicate(self.input.encode())
-        #self.output = str(self.output)
-        #self.errors = str(self.errors)
-        self.parseProof(justify, findProof, discover, container, simultaneous)
+        self.parse_proof(justify, find_proof, discover, container, simultaneous)
 
-    def addFunctions(self):
+    def add_functions(self):
         self.input += "begin_problem(Test).\n" \
                       "list_of_descriptions.\n" \
                       "name({*A DCEC Problem*}).\n" \
@@ -333,39 +344,39 @@ class SpassContainer(object):
             self.input += "(" + key + "," + str(self.symbolReverter[key][1]) + "),\n"
         self.input = self.input[:-2] + "\n"
 
-    def addQuery(self, query):
+    def add_query(self, query):
         self.input += "\nend_of_list.\n\nlist_of_formulae(conjectures).\n"
         self.input += "formula(" + query + ").\n"
         self.input += "end_of_list.\n\nend_problem.\n"
 
-    def addFormulas(self, simultaneous, rules, formulas):
+    def add_formulas(self, simultaneous, rules, formulas):
         self.input += "end_of_list.\n\nlist_of_formulae(axioms).\n" \
                       "formula(forall([x],implies(isValid(x),Boolean(x))),SORTING_RULE).\n"
         for r in rules:
-            tmp=r
-            ittr=1
+            tmp = r
+            ittr = 1
             if simultaneous:
                 while tmp in self.simultaneousRules:
                     self.input += self.simultaneousRules[tmp][0]+"\n"
-                    tmp=r+str(ittr)
-                    ittr+=1
+                    tmp = r+str(ittr)
+                    ittr += 1
             if not simultaneous:
                 while tmp in self.temporalRules:
                     self.input += self.temporalRules[tmp][0]+"\n"
-                    tmp=r+str(ittr)
-                    ittr+=1
+                    tmp = r+str(ittr)
+                    ittr += 1
             while tmp in self.basicLogicRules:
                 self.input += self.basicLogicRules[tmp][0]+"\n"
-                tmp=r+str(ittr)
-                ittr+=1
+                tmp = r+str(ittr)
+                ittr += 1
             while tmp in self.commonlyKnownLogicRules:
                 self.input += self.commonlyKnownLogicRules[tmp][0]+"\n"
-                tmp=r+str(ittr)
-                ittr+=1
+                tmp = r+str(ittr)
+                ittr += 1
         for formula in formulas:
             self.input += "formula(" + formula + ").\n"
 
-    def parseProof(self, justified, findProof, discover, container,simultaneous):
+    def parse_proof(self, justified, find_proof, discover, container, simultaneous):
         """
         Takes the proof that's ouputted from SPASS (saved in self.output) and then parses it
         into a form that is a bit more human readable to someone that isn't well versed in
@@ -373,7 +384,7 @@ class SpassContainer(object):
         what they resolved against).
 
         :param justified: are we looking for a full proof (True) or just the end result (False)
-        :param findProof: can we get the full proof tree or not (false if we had an exists)
+        :param find_proof: can we get the full proof tree or not (false if we had an exists)
         :param discover:
         :param container:
         :param simultaneous:
@@ -392,7 +403,7 @@ class SpassContainer(object):
             if justified:
                 index = self.output.find("Here is a proof with ")
                 proofStr = self.output[self.output.find("\n", index):self.output.find("\nFormulae used in the proof",index)]
-                if findProof:
+                if find_proof:
                     emptyContainer = DCECContainer()
                     emptyContainer.namespace = container.namespace
                     self.proof = ProofTree(proofStr, emptyContainer, simultaneous,
@@ -408,7 +419,7 @@ class SpassContainer(object):
                         steps.pop(x)
                     elif steps[x].startswith("declaration"):
                         steps.pop(x)
-                steps =frozenset(steps)
+                steps = frozenset(steps)
                 for step in steps:
                     if step in self.axioms:
                         self.result[1].append(self.axioms[step])
@@ -428,13 +439,13 @@ class SpassContainer(object):
                     tmperarotya = toSNotation(logic[index], container.namespace.sorts,
                                               self.symbolReverter)
                     if tmperarotya != "":
-                        self.discoveries.addStatement(tmperarotya)
+                        self.discoveries.add_statement(tmperarotya)
                 index -= 1
 
-    def getResult(self):
+    def get_result(self):
         return self.result
 
-    def resultToString(self):
+    def result_to_string(self):
         output = self.result[0] + "\n"
         for statement in self.result[1]:
             output += "\t" + statement[0].print_statement(statement[1]) + "\n"
@@ -442,28 +453,28 @@ class SpassContainer(object):
             output += "\t\t" + rule + "\n"
         return output
 
-    def discoveriesToString(self):
+    def discoveries_to_string(self):
         output = ""
         for discovery in self.discoveries.statements:
             output += self.discoveries.print_statement(discovery) + "\n"
         return output
 
-    def getOutput(self):
+    def get_output(self):
         return self.output
 
-    def getErrors(self):
+    def get_errors(self):
         return self.errors
 
-    def getAxioms(self):
+    def get_axioms(self):
         return self.axioms
 
-    def getConjecture(self):
+    def get_conjecture(self):
         return self.conjecture
 
-    def getRules(self):
+    def get_rules(self):
         return self.rules
 
-    def proofToString(self, tab_character="\t", end_character="\n"):
+    def proof_to_string(self, tab_character="\t", end_character="\n"):
         """
         Takes the parsed SPASS proof (if there is one), converting it to a more human readable
         output with tabs and newlines. Each time a new "sub-proof" is entered, a tab character
@@ -477,13 +488,13 @@ class SpassContainer(object):
         if self.proof is None:
             return None
         output = ""
-        for key in self.proof.proofDict.keys():
+        for key in self.proof.proof_keys:
             output += key + end_character
             for line in self.proof.proofDict[key]:
                 output += tab_character + line + end_character
         return output
 
-    def proofToSlate(self):
+    def proof_to_slate(self):
         """
         Takes the parsed SPASS proof and generates a string that can be opened in the
         `Slate <http://rair.cogsci.rpi.edu/projects/slate/>`_. program. If written to a file,

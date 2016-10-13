@@ -47,7 +47,7 @@ class ProofTree(object):
         ("|| Agent(U) isValid(B3AgentMomentBoolean(U,V,W)) isValid(B3AgentMomentBoolean(U,V,O4AgentMomentBooleanBoolean(Self1Agent(U),V,W,Happens2EventMoment(Action2AgentActionType(Self1Agent(U),X),Y))))* isValid(O4AgentMomentBooleanBoolean(U,V,W,Happens2EventMoment(Action2AgentActionType(Self1Agent(U),X),Y))) isValid(Lessorequal2MomentMoment(V,Y)) Moment(V) Boolean(W) ActionType(X) Moment(Y) -> isValid(K3AgentMomentBoolean(U,V,I3AgentMomentBoolean(Self1Agent(U),V,Happens2EventMoment(Action2AgentActionType(Self1Agent(U),X),Y)))).","DCEC_RULE_14")
     ])
 
-    def __init__(self,inputProof, container, isSimultaneous, symbolReverter):
+    def __init__(self, inputProof, container, isSimultaneous, symbolReverter):
         # inputProof is the raw spass proof output
         # container is an empty DCECContainer with the necessary namespace
         inputProof = inputProof.split("\n")
@@ -56,7 +56,7 @@ class ProofTree(object):
             idStart = inputProof[x].find("[")
             idEnd = inputProof[x].find("] ")+2
             # find the start and end of the premise ids
-            if inputProof[x].rfind(":",0,idEnd) == inputProof[x].find(":",0,idEnd):
+            if inputProof[x].rfind(":", 0, idEnd) == inputProof[x].find(":",0,idEnd):
                 premiseStart = idEnd-2
                 # if there were no premises be prepared to have none
             else:
@@ -118,12 +118,14 @@ class ProofTree(object):
             if not inputProof[x][0] in usedLines:
                 inputProof.pop(x)
             x -= 1
+        self.proof_keys = []
         self.proofDict = dict()
         for line in inputProof:
             premises = []
             for p in line[1]:
                 premises.append(idLookup[p])
             self.proofDict[line[2]] = premises
+            self.proof_keys.append(line[2])
         """
         self.proofTree=self.stratify("(leads_to_conclusion )")
     #return a tuple, first index the leads to conclusion, second index is a list of reasons that are recursive
